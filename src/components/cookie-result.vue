@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import type { Cookie } from '@/lib/types'
-import Message from 'primevue/Message'
+import Message from 'primevue/message'
 import { computed } from 'vue'
 import CopyButton from './copy-button.vue'
 
