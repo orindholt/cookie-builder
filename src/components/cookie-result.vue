@@ -1,16 +1,38 @@
 <script setup lang="ts">
 import type { Cookie } from '@/lib/types'
+import Message from 'primevue/Message'
+import { computed } from 'vue'
+import CopyButton from './copy-button.vue'
 
-defineProps<{
-  selected: Cookie
+const props = defineProps<{
+  cookie: Cookie
 }>()
+
+const cookie = computed(() => {
+  const { name, value, path, expires, domain, secure, httpOnly, sameSite } = props.cookie
+
+  return `document.cookie = '
+    ${name && value ? `${name}=${value};` : ''}
+    ${path ? `Path=${path};` : ''}
+    ${expires ? `Expires=${expires.toUTCString()};` : ''}
+    ${domain ? `Domain=${domain};` : ''}
+    ${secure ? `Secure;` : ''}
+    ${httpOnly ? `HttpOnly;` : ''}
+    ${sameSite ? `SameSite=${sameSite};` : ''}
+  '`
+})
+
+const showWarning = computed(() => !props.cookie.name || !props.cookie.value)
 </script>
 
 <template>
-  <code>
-    document.cookie = '{{ selected.name }}={{ selected.value }}; Path={{ selected.path }}';
-    Expires={{ selected.expires.toUTCString() }}; Domain={{ selected.domain }}; Secure={{
-      selected.secure
-    }}; HttpOnly={{ selected.httpOnly }}; SameSite={{ selected.sameSite }}'
-  </code>
+  <div>
+    <div class="bg-slate-200 p-2 pr-8 rounded-sm border border-gray-400 relative">
+      <code>
+        {{ cookie }}
+      </code>
+      <CopyButton :text="cookie" class="absolute bottom-2 right-2" />
+    </div>
+    <Message severity="warn" v-if="showWarning">Your cookie needs a name and a value</Message>
+  </div>
 </template>

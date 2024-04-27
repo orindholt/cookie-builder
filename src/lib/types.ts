@@ -3,7 +3,8 @@ export interface Cookie {
   value: string
   domain: string
   path: string
-  expires: Date
+  expires?: Date
+  maxAge: number | null
   httpOnly: boolean
   secure: boolean
   sameSite: 'Strict' | 'Lax' | 'None'
