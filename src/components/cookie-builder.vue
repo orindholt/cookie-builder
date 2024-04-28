@@ -12,7 +12,7 @@ import { ref } from 'vue'
 import CookieResult from './cookie-result.vue'
 import CookieToolbar from './cookie-toolbar.vue'
 
-let cookie = ref<Cookie>(Object.assign({}, DEFAULT_COOKIE))
+const cookie = ref<Cookie>(Object.assign({}, DEFAULT_COOKIE))
 
 function updateCookie(newCookie: Cookie) {
   cookie.value = newCookie
@@ -24,6 +24,7 @@ function updateCookie(newCookie: Cookie) {
   <CookieToolbar :cookie @update-cookie="updateCookie" />
   <div class="items-start grid lg:grid-cols-2 gap-4">
     <form
+      @submit="(e) => e.preventDefault()"
       v-focus-trap
       class="grid grid-cols-[auto_1fr] items-center justify-items-start gap-4 max-w-screen-s"
     >
@@ -94,14 +95,14 @@ function updateCookie(newCookie: Cookie) {
       </FormElement>
       <FormElement
         id="httpOnly"
-        label="HttpOnly"
+        label="Http Only"
         tooltip="When the HttpOnly attribute is set, JavaScript cannot access the cookie through the document.cookie API. This helps mitigate certain types of cross-site scripting (XSS) attacks by preventing malicious scripts from accessing sensitive cookie data."
       >
         <Checkbox id="httpOnly" v-model="cookie.httpOnly" :binary="true" />
       </FormElement>
       <FormElement
         id="sameSite"
-        label="SameSite"
+        label="Same Site"
         tooltip="This attribute controls whether the cookie is sent with cross-origin requests. It can have three possible values: 'Strict', 'Lax', or 'None'. 'Strict' means the cookie is only sent in a first-party context, 'Lax' allows cookies to be sent with safe cross-site requests (e.g., links), and 'None' allows cookies to be sent with all cross-origin requests."
       >
         <Dropdown

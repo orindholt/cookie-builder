@@ -7,7 +7,12 @@ defineProps<{
 </script>
 
 <template>
-  <label v-if="label" v-tooltip="tooltip" :for="id" class="text-sm font-medium text-slate-900">
+  <label
+    v-if="label"
+    v-tooltip="tooltip"
+    :for="id"
+    class="text-sm font-medium text-slate-900 w-fit"
+  >
     {{ label }}
   </label>
   <slot></slot>

@@ -1,15 +1,17 @@
 <script setup lang="ts">
+import { DEFAULT_COOKIE } from '@/lib/constants'
 import type { Cookie } from '@/lib/types'
 import Button from 'primevue/button'
+import ConfirmDialog from 'primevue/confirmdialog'
 import Dialog from 'primevue/dialog'
 import InputText from 'primevue/inputtext'
 import SplitButton from 'primevue/splitbutton'
 import Toolbar from 'primevue/toolbar'
+import { useConfirm } from 'primevue/useconfirm'
 import { ref } from 'vue'
 import FormElement from './form/form-element.vue'
-import { DEFAULT_COOKIE } from '@/lib/constants'
-import { useConfirm } from 'primevue/useconfirm'
-import ConfirmDialog from 'primevue/confirmdialog'
+import CopyButton from './copy-button.vue'
+import { parseCookie } from '@/lib/utils'
 
 defineProps<{
   cookie: Cookie
@@ -114,7 +116,7 @@ const items = [
   <Toolbar>
     <template #start>
       <Button icon="pi pi-plus" class="mr-2" severity="secondary"></Button>
-      <Button icon="pi pi-clipboard" class="mr-2" severity="secondary"></Button>
+      <CopyButton :value="parseCookie($props.cookie)" class="mr-2" severity="secondary" />
       <Button
         icon="pi pi-upload"
         class="mr-2"

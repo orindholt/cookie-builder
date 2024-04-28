@@ -4,28 +4,13 @@ import VCodeBlock from '@wdns/vue-code-block'
 import Message from 'primevue/message'
 import { computed } from 'vue'
 import CopyButton from './copy-button.vue'
+import { parseCookie } from '@/lib/utils'
 
 const props = defineProps<{
   cookie: Cookie
 }>()
 
-function capitalize(string: string) {
-  return string.charAt(0).toUpperCase() + string.slice(1)
-}
-
-const code = computed(() => {
-  const { name, value, expires, ...attributes } = props.cookie
-
-  const attr = (name: string, value: any) => (name && value ? `${name}=${value};` : '')
-
-  return `document.cookie = '
-    ${attr(name, value)}
-    ${attr('Expires', expires?.toUTCString())}
-    ${Object.entries(attributes)
-      .map(([key, value]) => attr(capitalize(key), value))
-      .join('\n\t')}
-';`.replace(/^\s*\n/gm, '')
-})
+const code = computed(() => parseCookie(props.cookie))
 
 const warnings = computed(() =>
   [
@@ -44,14 +29,14 @@ const warnings = computed(() =>
 <template>
   <div class="flex flex-col-reverse lg:flex-col gap-4">
     <VCodeBlock
-      class="rounded-sm shadow-md relative"
+      class="rounded-sm shadow-md"
       :code="code"
       highlightjs
       lang="javascript"
       theme="atom-one-dark"
     >
       <template #copyButton>
-        <CopyButton :text="code" />
+        <CopyButton class="!py-0 !px-2 !w-fit" :value="code" text />
       </template>
     </VCodeBlock>
     <Message v-for="(warning, index) in warnings" :key="index" severity="warn">
