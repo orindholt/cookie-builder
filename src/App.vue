@@ -8,7 +8,7 @@ import CookieBuilder from './components/cookie-builder.vue'
 </script>
 
 <template>
-  <main class="min-h-screen max-w-screen-xl p-8">
+  <main class="min-h-screen max-w-screen-xl mx-auto p-8 flex flex-col gap-4">
     <CookieBuilder />
   </main>
 </template>

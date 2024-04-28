@@ -1,6 +1,19 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@layer tailwind-base, primevue, tailwind-utilities;
+
+@layer tailwind-base {
+  @tailwind base;
+}
+
+@layer tailwind-utilities {
+  @tailwind components;
+  @tailwind utilities;
+}
+
+@layer primevue {
+  .p-message {
+    @apply !my-0;
+  }
+}
 
 @layer base {
   body {
@@ -17,9 +30,6 @@
   }
 }
 
-form .p-inputtext.p-component {
-  @apply py-2 px-3;
-}
 form .p-component:not(.p-button) {
   @apply w-full;
 }
