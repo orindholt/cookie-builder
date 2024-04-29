@@ -8,6 +8,7 @@ export const DEFAULT_COOKIE: Cookie = {
   value: '',
   domain: '',
   expires: null,
+  expire: false,
   maxAge: null,
   secure: false,
   httpOnly: false,

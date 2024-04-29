@@ -6,6 +6,7 @@ export interface Cookie {
   domain: string
   path: string
   expires: Date | null
+  expire?: false
   maxAge: number | null
   httpOnly: boolean
   secure: boolean

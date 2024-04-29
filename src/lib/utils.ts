@@ -5,13 +5,13 @@ export function capitalize(string: string) {
 }
 
 export function parseCookie(cookie: Cookie) {
-  const { name, value, expires, ...attributes } = cookie
+  const { name, value, expires, expire, ...attributes } = cookie
 
   const attr = (name: string, value: any) => (name && value ? `${name}=${value};` : '')
 
   return `document.cookie = '
     ${attr(name, value)}
-    ${attr('Expires', expires?.toUTCString())}
+    ${attr('Expires', expire ? 'Thu, 01 Jan 1970 00:00:01 GMT' : expires?.toUTCString())}
     ${Object.entries(attributes)
       .map(([key, value]) => attr(capitalize(key), value))
       .join('\n\t')}

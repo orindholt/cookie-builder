@@ -57,6 +57,13 @@ function updateCookie(newCookie: Cookie) {
         <InputText id="domain" type="text" v-model="cookie.domain" placeholder="Domain" />
       </FormElement>
       <FormElement
+        id="expire"
+        label="Expire Now"
+        tooltip="By settings the date to the origin of javascript time (Thu, 01 Jan 1970 00:00:01 GMT) the cookie will be deleted"
+      >
+        <Checkbox id="expire" v-model="cookie.expire" :binary="true" />
+      </FormElement>
+      <FormElement
         id="expires"
         label="Expires"
         tooltip="The Expires attribute is a date and time value indicating the exact expiration time of the cookie"
@@ -64,7 +71,7 @@ function updateCookie(newCookie: Cookie) {
         <Calendar
           id="expires"
           v-model="cookie.expires"
-          :disabled="!!cookie.maxAge"
+          :disabled="Boolean(cookie.maxAge || cookie.expire)"
           showIcon
           dateFormat="yy-mm-dd"
           timeFormat="HH:mm"
@@ -82,7 +89,7 @@ function updateCookie(newCookie: Cookie) {
           id="maxAge"
           type="number"
           v-model="cookie.maxAge"
-          :disabled="!!cookie.expires"
+          :disabled="Boolean(cookie.expires || cookie.expire)"
           placeholder="Max Age (in sec)"
         />
       </FormElement>

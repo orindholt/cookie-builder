@@ -6,20 +6,20 @@ import { computed } from 'vue'
 import CopyButton from './copy-button.vue'
 import { parseCookie } from '@/lib/utils'
 
-const props = defineProps<{
+const { cookie } = defineProps<{
   cookie: Cookie
 }>()
 
-const code = computed(() => parseCookie(props.cookie))
+const code = computed(() => parseCookie(cookie))
 
 const warnings = computed(() =>
   [
     {
-      cond: !props.cookie.name || !props.cookie.value,
+      cond: !cookie.name || !cookie.value,
       text: 'Your cookie should have a name and a value'
     },
     {
-      cond: !props.cookie.expires && !props.cookie.maxAge,
+      cond: !cookie.expires && !cookie.maxAge && !cookie.expire,
       text: 'Your cookie should have either a expiration or max age'
     }
   ].filter((w) => w.cond)
