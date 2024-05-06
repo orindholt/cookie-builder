@@ -1,25 +1,45 @@
+import { DEFAULT_COOKIE } from './constants'
 import type { Cookie } from './types'
+import { isNil, merge } from 'lodash'
 
 export function capitalize(string: string) {
   return string.charAt(0).toUpperCase() + string.slice(1)
 }
 
-export function parseCookie(cookie: Cookie) {
-  const { name, value, expires, expire, ...attributes } = cookie
-
-  const attr = (name: string, value: any) => (name && value ? `${name}=${value};` : '')
-
-  return `document.cookie = '
-    ${attr(name, value)}
-    ${attr('Expires', expire ? 'Thu, 01 Jan 1970 00:00:01 GMT' : expires?.toUTCString())}
-    ${Object.entries(attributes)
-      .map(([key, value]) => attr(capitalize(key), value))
-      .join('\n\t')}
-';`.replace(/^\s*\n/gm, '')
+type CookieOptions = {
+  strip: boolean
+  prefix: string
+  semiColon: boolean
 }
 
-export function stripCookieString(cookie: string) {
-  return cookie.replace(/(\r\n|\n|\r|\t|\s{2,})/gm, '').replace(/;(?=[^;\s|'])/g, '; ')
+const defaultOptions: CookieOptions = {
+  prefix: '',
+  strip: false,
+  semiColon: true
+}
+
+function cookieAttribute(name: string, value?: any) {
+  if (!name || isNil(value) || value === '' || value === false) return ''
+  if (value === true) return `${name};`
+  return `${name}=${value};`
+}
+export function cookieToString(cookie: Cookie, options?: Partial<CookieOptions>) {
+  const { name, value, expires, expire, ...rest } = cookie
+  options = { ...defaultOptions, ...options }
+
+  let string = `${options.prefix || ''}'
+    ${cookieAttribute(name, value)}
+    ${cookieAttribute('Expires', expire ? 'Thu, 01 Jan 1970 00:00:01 GMT' : (typeof expires === 'string' ? new Date(expires) : expires)?.toUTCString())}
+    ${Object.entries(rest)
+      .map(([key, value]) => cookieAttribute(capitalize(key), value))
+      .join('\n\t')}
+'${options.semiColon ? ';' : ''}`.replace(/^\s*\n/gm, '')
+
+  // Strip extra spaces, tabs, newlines and multiple semicolons
+  if (options.strip)
+    string = string.replace(/(\r\n|\n|\r|\t|\s{2,})/gm, '').replace(/;(?=[^;\s|'])/g, '; ')
+
+  return string
 }
 
 export async function copyString(options: {
@@ -42,4 +62,38 @@ export async function copyString(options: {
     return
   }
   if (onError) onError()
+}
+
+export function parseCookieString(cookie: string): Cookie {
+  const attributes = cookie
+    .replace(/document\.*cookie\s*=|'/g, '')
+    .split(';')
+    .map((c) => c.trim())
+    .filter(Boolean)
+
+  let nameValue = false
+
+  return attributes.reduce((acc, c): Cookie => {
+    let [key, value] = c.split('=') as [string, any]
+    key = key.toLowerCase()
+
+    if (isValidDate(value)) value = new Date(value)
+    else if (value === 'true') value = true
+    else if (value === 'false') value = false
+    else if (!isNaN(value)) value = Number(value)
+
+    if (key in DEFAULT_COOKIE) {
+      acc[key] = value
+    } else if (!nameValue) {
+      nameValue = true
+      acc.name = key
+      acc.value = value
+    }
+    return acc
+  }, {} as any)
+}
+
+export function isValidDate(string: string): boolean {
+  const date = new Date(string)
+  return !isNaN(date.getTime())
 }

@@ -1,68 +1,30 @@
 <script setup lang="ts">
 import { DEFAULT_COOKIE } from '@/lib/constants'
 import type { Cookie } from '@/lib/types'
+import { cookieToString } from '@/lib/utils'
 import Button from 'primevue/button'
 import ConfirmDialog from 'primevue/confirmdialog'
-import Dialog from 'primevue/dialog'
-import InputText from 'primevue/inputtext'
 import SplitButton from 'primevue/splitbutton'
 import Toolbar from 'primevue/toolbar'
 import { useConfirm } from 'primevue/useconfirm'
+import { useToast } from 'primevue/usetoast'
 import { ref } from 'vue'
-import FormElement from './form/form-element.vue'
 import CopyButton from './copy-button.vue'
-import { parseCookie } from '@/lib/utils'
+import LoadDialog from './dialog/load-dialog.vue'
 
-defineProps<{
+const props = defineProps<{
   cookie: Cookie
 }>()
-const emit = defineEmits(['update-cookie'])
+const emit = defineEmits(['update:cookie'])
 
-const uploadVisible = ref(false)
-const cookieInput = ref('')
+const load = ref<boolean>(false)
+
+const toast = useToast()
 
 function saveCookie() {
-  console.log('Save Cookie')
-}
-
-function isValidDate(dateStr: string): boolean {
-  const date = new Date(dateStr)
-  return !isNaN(date.getTime())
-}
-
-function importCookie(e: Event) {
-  e.preventDefault()
-  const attributes = cookieInput.value
-    .replace(/document\.*cookie\s*=|'/g, '')
-    .split(';')
-    .map((c) => c.trim())
-    .filter(Boolean)
-
-  let nameValue = false
-
-  const reduced = attributes.reduce(
-    (acc, c) => {
-      let [key, value] = c.split('=') as [string, any]
-      key = key.toLowerCase()
-
-      if (isValidDate(value)) value = new Date(value)
-      else if (value === 'true') value = true
-      else if (value === 'false') value = false
-      else if (!isNaN(value)) value = Number(value)
-
-      if (key in DEFAULT_COOKIE) {
-        acc[key] = value
-      } else if (!nameValue) {
-        nameValue = true
-        acc.name = key
-        acc.value = value
-      }
-      return acc
-    },
-    {} as Record<string, any>
-  )
-  uploadVisible.value = false
-  emit('update-cookie', reduced)
+  toast.add({ severity: 'success', summary: 'Success', detail: 'Cookie saved', life: 2000 })
+  const stringified = JSON.stringify(props.cookie)
+  localStorage.setItem('saved-cookie', stringified)
 }
 
 const confirm = useConfirm()
@@ -75,54 +37,20 @@ function resetCookie() {
     acceptLabel: 'Reset',
     rejectClass: 'p-button-secondary p-button-outlined',
     acceptClass: 'p-button-danger',
-    accept: () => {
-      console.log('Reset Cookie', DEFAULT_COOKIE)
-      emit('update-cookie', DEFAULT_COOKIE)
-    }
+    accept: () => emit('update:cookie', DEFAULT_COOKIE)
   })
-  // Object.assign(cookie, DEFAULT_COOKIE)
 }
 
-const items = [
-  { label: 'Save As', icon: 'pi pi-plus' },
-  { label: 'Copy', icon: 'pi pi-clipboard' },
-  { label: 'Upload', icon: 'pi pi-upload', command: () => (uploadVisible.value = true) }
-]
+const items = [{ label: 'Load', icon: 'pi pi-upload', command: () => (load.value = true) }]
 </script>
 
 <template>
-  <ConfirmDialog :draggable="false" />
-  <Dialog
-    v-model:visible="uploadVisible"
-    header="Upload Cookie"
-    class="min-w-96 max-w-screen-sm w-full"
-    :draggable="false"
-    modal
-  >
-    <form class="flex flex-col justify-start gap-1" @submit="importCookie">
-      <FormElement label="Cooke Code">
-        <InputText
-          id="name"
-          type="text"
-          v-model="cookieInput"
-          class="placeholder:truncate"
-          :placeholder="`document.cookie = 'Cookie=Value; Path=/; Expires=${new Date().toUTCString()}; Secure; SameSite=Lax;'`"
-          required
-        />
-      </FormElement>
-      <Button icon="pi pi-upload" class="ml-auto mt-4" type="submit" label="Upload"></Button>
-    </form>
-  </Dialog>
+  <ConfirmDialog dismissableMask :draggable="false" />
+  <LoadDialog :state="load" @update:state="(b: boolean) => (load = b)" />
   <Toolbar>
     <template #start>
-      <Button icon="pi pi-plus" class="mr-2" severity="secondary"></Button>
-      <CopyButton :value="parseCookie($props.cookie)" class="mr-2" severity="secondary" />
-      <Button
-        icon="pi pi-upload"
-        class="mr-2"
-        severity="secondary"
-        @click="uploadVisible = true"
-      ></Button>
+      <CopyButton :value="cookieToString($props.cookie)" class="mr-2" severity="secondary" />
+      <Button icon="pi pi-upload" class="mr-2" severity="secondary" @click="load = true"></Button>
       <Button icon="pi pi-trash" class="mr-2" severity="secondary" @click="resetCookie"></Button>
     </template>
     <template #end>

@@ -8,20 +8,22 @@ import FormElement from './form/form-element.vue'
 
 import { DEFAULT_COOKIE, SAME_SITE_OPTIONS } from '@/lib/constants'
 import type { Cookie } from '@/lib/types'
-import { ref } from 'vue'
+import { reactive } from 'vue'
 import CookieResult from './cookie-result.vue'
 import CookieToolbar from './cookie-toolbar.vue'
 
-const cookie = ref<Cookie>(Object.assign({}, DEFAULT_COOKIE))
+const savedCookie = localStorage.getItem('saved-cookie')
+
+let cookie = reactive<Cookie>(savedCookie ? JSON.parse(savedCookie) : DEFAULT_COOKIE)
 
 function updateCookie(newCookie: Cookie) {
-  cookie.value = newCookie
+  Object.assign(cookie, newCookie)
 }
 </script>
 
 <template>
   <h1 class="text-3xl font-bold">Cookie Builder</h1>
-  <CookieToolbar :cookie @update-cookie="updateCookie" />
+  <CookieToolbar :cookie @update:cookie="updateCookie" />
   <div class="items-start grid lg:grid-cols-2 gap-4">
     <form
       @submit="(e) => e.preventDefault()"
@@ -58,8 +60,8 @@ function updateCookie(newCookie: Cookie) {
       </FormElement>
       <FormElement
         id="expire"
-        label="Expire Now"
-        tooltip="By settings the date to the origin of javascript time (Thu, 01 Jan 1970 00:00:01 GMT) the cookie will be deleted"
+        label="Remove"
+        tooltip="This sets the expiration date to start of javascript time (Thu, 01 Jan 1970 00:00:01 GMT), this deletes the cookie."
       >
         <Checkbox id="expire" v-model="cookie.expire" :binary="true" />
       </FormElement>
@@ -103,7 +105,7 @@ function updateCookie(newCookie: Cookie) {
       <FormElement
         id="httpOnly"
         label="Http Only"
-        tooltip="When the HttpOnly attribute is set, JavaScript cannot access the cookie through the document.cookie API. This helps mitigate certain types of cross-site scripting (XSS) attacks by preventing malicious scripts from accessing sensitive cookie data."
+        tooltip="When the HttpOnly attribute is set, Javascript cannot access the cookie through the document.cookie API. This helps mitigate certain types of cross-site scripting (XSS) attacks by preventing malicious scripts from accessing sensitive cookie data."
       >
         <Checkbox id="httpOnly" v-model="cookie.httpOnly" :binary="true" />
       </FormElement>
