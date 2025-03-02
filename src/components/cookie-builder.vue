@@ -14,10 +14,12 @@ import CookieToolbar from './cookie-toolbar.vue'
 
 const savedCookie = localStorage.getItem('saved-cookie')
 
-let cookie = reactive<Cookie>(savedCookie ? JSON.parse(savedCookie) : DEFAULT_COOKIE)
+const cookie = reactive<Cookie>(savedCookie ? JSON.parse(savedCookie) : DEFAULT_COOKIE)
 
 function updateCookie(newCookie: Cookie) {
-  Object.assign(cookie, newCookie)
+  Object.keys(newCookie).forEach(key => {
+    cookie[key as keyof Cookie] = newCookie[key as keyof Cookie]
+  })
 }
 </script>
 

@@ -37,7 +37,10 @@ function resetCookie() {
     acceptLabel: 'Reset',
     rejectClass: 'p-button-secondary p-button-outlined',
     acceptClass: 'p-button-danger',
-    accept: () => emit('update:cookie', DEFAULT_COOKIE)
+    accept: () => {
+      const resetCookie = JSON.parse(JSON.stringify(DEFAULT_COOKIE))
+      emit('update:cookie', resetCookie)
+    }
   })
 }
 
