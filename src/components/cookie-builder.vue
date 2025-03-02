@@ -18,7 +18,7 @@ const cookie = reactive<Cookie>(savedCookie ? JSON.parse(savedCookie) : DEFAULT_
 
 function updateCookie(newCookie: Cookie) {
   Object.keys(newCookie).forEach(key => {
-    cookie[key as keyof Cookie] = newCookie[key as keyof Cookie]
+    (cookie[key as keyof Cookie] as any) = newCookie[key as keyof Cookie]
   })
 }
 </script>
